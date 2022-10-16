@@ -14,8 +14,7 @@ class MSELoss(Criterion):
         :return: loss value
         """
         assert input.shape == target.shape, 'input and target shapes not matching'
-        # replace with your code ｀、ヽ｀、ヽ(ノ＞＜)ノ ヽ｀☂｀、ヽ
-        return super().compute_output(input, target)
+        return np.mean(np.square(input - target))
 
     def compute_grad_input(self, input: np.array, target: np.array) -> np.array:
         """
@@ -24,8 +23,8 @@ class MSELoss(Criterion):
         :return: array of size (batch_size, *)
         """
         assert input.shape == target.shape, 'input and target shapes not matching'
-        # replace with your code ｀、ヽ｀、ヽ(ノ＞＜)ノ ヽ｀☂｀、ヽ
-        return super().compute_grad_input(input, target)
+        b, n = input.shape
+        return (2 * input - 2 * target) / (b * n)
 
 
 class CrossEntropyLoss(Criterion):
@@ -42,8 +41,14 @@ class CrossEntropyLoss(Criterion):
         :param target: labels array of size (batch_size, )
         :return: loss value
         """
-        # replace with your code ｀、ヽ｀、ヽ(ノ＞＜)ノ ヽ｀☂｀、ヽ
-        return super().compute_output(input, target)
+        batch_size, num_classes = input.shape
+        log_p = self.log_softmax.compute_output(input)
+
+        reshaped_target = target.reshape((batch_size, 1)).repeat(num_classes, 1)
+        reshaped_classes = np.arange(num_classes).reshape((1, num_classes)).repeat(batch_size, 0)
+        indicators = np.array(reshaped_target == reshaped_classes, dtype=int)
+
+        return -np.sum(log_p * indicators) / batch_size
 
     def compute_grad_input(self, input: np.array, target: np.array) -> np.array:
         """
@@ -51,5 +56,10 @@ class CrossEntropyLoss(Criterion):
         :param target: labels array of size (batch_size, )
         :return: array of size (batch_size, num_classes)
         """
-        # replace with your code ｀、ヽ｀、ヽ(ノ＞＜)ノ ヽ｀☂｀、ヽ
-        return super().compute_grad_input(input, target)
+        batch_size, num_classes = input.shape
+
+        reshaped_target = target.reshape((batch_size, 1)).repeat(num_classes, 1)
+        reshaped_classes = np.arange(num_classes).reshape((1, num_classes)).repeat(batch_size, 0)
+        indicators = np.array(reshaped_target == reshaped_classes, dtype=int)
+
+        return -self.log_softmax.compute_grad_input(input, indicators) / batch_size

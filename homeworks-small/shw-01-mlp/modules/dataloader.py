@@ -1,3 +1,6 @@
+import numpy as np
+from math import ceil
+
 class DataLoader(object):
     """
     Tool for shuffling data and forming mini-batches
@@ -15,27 +18,29 @@ class DataLoader(object):
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.batch_id = 0  # use in __next__, reset in __iter__
+        self.indexes = np.array(range(self.X.shape[0]))
 
     def __len__(self) -> int:
         """
         :return: number of batches per epoch
         """
-        # replace with your code ｀、ヽ｀、ヽ(ノ＞＜)ノ ヽ｀☂｀、ヽ
-        return 0
+        return ceil(self.X.shape[0] / self.batch_size)  # drop_last = False
 
     def num_samples(self) -> int:
         """
         :return: number of data samples
         """
-        # replace with your code ｀、ヽ｀、ヽ(ノ＞＜)ノ ヽ｀☂｀、ヽ
-        return 0
+        return self.X.shape[0]
 
     def __iter__(self):
         """
         Shuffle data samples if required
         :return: self
         """
-        # your code here ｀、ヽ｀、ヽ(ノ＞＜)ノ ヽ｀☂｀、ヽ
+        self.batch_id = 0
+        if self.shuffle:
+            self.indexes = np.array(range(self.X.shape[0]))
+            np.random.shuffle(self.indexes)
         return self
 
     def __next__(self):
@@ -43,5 +48,10 @@ class DataLoader(object):
         Form and return next data batch
         :return: (x_batch, y_batch)
         """
-        # your code here ｀、ヽ｀、ヽ(ノ＞＜)ノ ヽ｀☂｀、ヽ
+        if self.batch_id < len(self):
+            batch_indexes = self.indexes[self.batch_id * self.batch_size : (self.batch_id + 1) * self.batch_size]
+            X_batch = self.X[batch_indexes]
+            y_batch = self.y[batch_indexes]
+            self.batch_id += 1
+            return X_batch, y_batch
         raise StopIteration
