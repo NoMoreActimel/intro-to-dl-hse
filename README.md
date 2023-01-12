@@ -1,5 +1,9 @@
 # Курс "Глубинное обучение (ГО) 1 / Введение в ГО" на ФКН ВШЭ
 
+<p align="center">
+  <img src="image.png" width="50%"/>
+</p>
+
 ## Полезные ссылки
 
 * [Вики-страничка](http://wiki.cs.hse.ru/Глубинное_обучение_1_22/23)
@@ -13,6 +17,9 @@
 3. Разбор дифференцирования из МДЗ 1, операция свертки: [запись](https://youtu.be/xa69n0yCid8)
 4. Архитектуры сверточных нейронных сетей: [запись](https://youtu.be/5S5HpbDm7eA)
 5. Задачи компьютерного зрения, сегментация и детекция: [запись](https://youtu.be/gJfDJoLEZIY)
+6. Токенизация текстов, эмбеддинги слов, TextCNN: [запись](https://youtu.be/WihC2R5lNmg)
+7. Рекуррентные нейронные сети, языковые модели: [запись](https://youtu.be/Ysj4i2S0D6c)
+8. Архитектура трансформера: [запись](https://youtu.be/wLUJVRqzEyM)
 
 ## Семинары
 
@@ -21,6 +28,9 @@
 3. Свертки в PyTorch, реализация архитектуры LeNet: [запись (группа 202)](https://youtu.be/C.CCiGacZAVo)
 4. Обучение моделей из torchvision, аугментации и fine-tuning: [запись (группа 202)](https://youtu.be/1wCd23p2l98)
 5. Семантическая сегментация и детекция: [запись (группа 202)](https://youtu.be/NSNYSEYAHa8)
+6. Word2Vec, Fasttext и TextCNN: [запись (группа 202)](https://youtu.be/2r67B1sPlDU)
+7. Генерация последовательностей, image captioning: [запись (группа 202)](https://youtu.be/-KdvXtUhwEk)
+8. Архитектура трансформера: [запись (группа 202)](https://youtu.be/QY456sQVTrM)
 
 ## Маленькие домашние задания
 
@@ -32,3 +42,4 @@
 Теоретические ДЗ не сдаются и предлагаются студентам для самостоятельного решения и ознакомления
 
 1. Полносвязные нейронные сети: [ссылка](https://github.com/isadrtdinov/intro-to-dl-hse/blob/2022-2023/homeworks-theory/thw-01-mlp.pdf)
+2. Сверточные нейронные сети: [ссылка](https://github.com/isadrtdinov/intro-to-dl-hse/blob/2022-2023/homeworks-theory/thw-02-cnn.pdf)
