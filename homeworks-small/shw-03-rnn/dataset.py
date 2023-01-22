@@ -2,7 +2,7 @@ import os
 import torch
 from typing import Union, List, Tuple
 from sentencepiece import SentencePieceTrainer, SentencePieceProcessor
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, random_split
 
 
 class TextDataset(Dataset):
@@ -40,8 +40,20 @@ class TextDataset(Dataset):
         Split texts to train and validation fixing self.TRAIN_VAL_RANDOM_SEED
         The validation ratio is self.VAL_RATIO
         """
-        train_texts, val_texts = None, None
+        train_idx, val_idx = random_split(
+            range(len(texts)),
+            [1 - self.VAL_RATIO, self.VAL_RATIO],
+            generator=torch.Generator().manual_seed(self.TRAIN_VAL_RANDOM_SEED)
+        )
+
+        train_texts = [texts[i] for i in train_idx]
+        val_texts = [texts[i] for i in val_idx]
+
         self.texts = train_texts if train else val_texts
+
+        # for debugging
+        # self.texts = self.texts[:10000] if train else self.texts[:1000]
+
         self.indices = self.sp_model.encode(self.texts)
 
         self.pad_id, self.unk_id, self.bos_id, self.eos_id = \
@@ -83,9 +95,6 @@ class TextDataset(Dataset):
         :param item: text id
         :return: encoded text indices and its actual length (including BOS and EOS specials)
         """
-        # These are placeholders, you may remove them.
-        indices = torch.randint(high=self.vocab_size, size=(self.max_length, ))
-        length = torch.randint(low=1, high=self.max_length + 1, size=()).item()
         """
         YOUR CODE HERE (⊃｡•́‿•̀｡)⊃━✿✿✿✿✿✿
         Take corresponding index array from self.indices,
@@ -93,4 +102,20 @@ class TextDataset(Dataset):
         pad to self.max_length using self.pad_id.
         Return padded indices of size (max_length, ) and its actual length
         """
-        return indices, length
+        indices = self.indices[item]
+
+        if len(indices) > self.max_length - 2:
+            indices = indices[:self.max_length - 2]
+
+        pad_cnt = self.max_length - 2 - len(indices)
+        indices = torch.tensor([self.bos_id] + indices + [self.eos_id] + [self.pad_id for _ in range(pad_cnt)])
+
+        # if len(indices) < self.max_length - 2:
+        #     pad_cnt = self.max_length - 2 - len(indices)
+        #     length = len(indices) + 2
+        #     indices = torch.tensor([self.bos_id] + indices + [self.eos_id] + [self.pad_id for _ in range(pad_cnt)])
+        # else:
+        #     length = self.max_length
+        #     indices = torch.tensor([self.bos_id] + indices[:self.max_length - 2] + [self.eos_id])
+
+        return indices, self.max_length - pad_cnt

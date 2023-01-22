@@ -29,7 +29,9 @@ def plot_losses(train_losses: List[float], val_losses: List[float]):
     YOUR CODE HERE (⊃｡•́‿•̀｡)⊃━✿✿✿✿✿✿
     Calculate train and validation perplexities given lists of losses
     """
-    train_perplexities, val_perplexities = [], []
+
+    train_perplexities = torch.float_power(torch.tensor(train_losses), 2)
+    val_perplexities = torch.float_power(torch.tensor(val_losses), 2)
 
     axs[1].plot(range(1, len(train_perplexities) + 1), train_perplexities, label='train')
     axs[1].plot(range(1, len(val_perplexities) + 1), val_perplexities, label='val')
@@ -64,6 +66,24 @@ def training_epoch(model: LanguageModel, optimizer: torch.optim.Optimizer, crite
         call backward and make one optimizer step.
         Accumulate sum of losses for different batches in train_loss
         """
+        optimizer.zero_grad()
+
+        indices = indices[:, :lengths.max()].to(device)
+        # print(indices[:, :-1].shape)
+        #
+        # train_indices = indices[:, :-1]
+        #
+        # for i in range(len(train_indices)):
+        #     assert 2 in train_indices[i], f'{i}, {train_indices[i]}'
+        logits = model(indices[:, :-1], lengths - 1)
+
+        # logits: (B, L, V), tokens: (B, L) - need to transpose logits
+        loss = criterion(logits.transpose(1, 2), indices[:, 1:])
+        loss.backward()
+
+        optimizer.step()
+
+        train_loss += loss.item() * indices.shape[0]
 
     train_loss /= len(loader.dataset)
     return train_loss
@@ -90,6 +110,14 @@ def validation_epoch(model: LanguageModel, criterion: nn.Module,
         Process one validation step: calculate loss.
         Accumulate sum of losses for different batches in val_loss
         """
+
+        indices = indices[:, :lengths.max()].to(device)
+        logits = model(indices[:, :-1], lengths - 1)
+
+        # logits: (B, L, V), tokens: (B, L) - need to transpose logits
+        loss = criterion(logits.transpose(1, 2), indices[:, 1:])
+
+        val_loss += loss.item() * indices.shape[0]
 
     val_loss /= len(loader.dataset)
     return val_loss
@@ -122,6 +150,8 @@ def train(model: LanguageModel, optimizer: torch.optim.Optimizer, scheduler: Opt
 
         if scheduler is not None:
             scheduler.step()
+
+        print(train_loss, val_loss)
 
         train_losses += [train_loss]
         val_losses += [val_loss]
